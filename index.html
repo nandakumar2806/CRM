@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LitNetX - Powerful CRM System</title>
+  <meta name="description" content="Modern, dynamic CRM system for managing contacts, companies, deals, tasks, and activities">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onerror="this.onerror=null; this.href=''; console.log('Font Awesome failed to load, using fallback');">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" onerror="this.onerror=null; this.href=''; console.log('Google Fonts failed to load, using system fonts');">
+</head>
+<body style="margin: 0; padding: 0; min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen" class="login-screen" style="position: fixed; inset: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+    <div class="login-container">
+      <div class="login-box">
+        <div class="logo-large">
+          <i class="fas fa-chart-line"></i>
+          <span>LitNetX</span>
+        </div>
+        <p class="login-subtitle">Powerful CRM System</p>
+        <form id="loginForm">
+          <input id="loginUser" type="text" required placeholder="Username or Email" autocomplete="username">
+          <input id="loginPass" type="password" required placeholder="Password" autocomplete="current-password">
+          <button type="submit" class="btn-login">Log In</button>
+        </form>
+        <div id="loginMsg" class="error-msg"></div>
+        <div class="signup-link">
+          Don't have an account? <a href="#" onclick="showSignup()">Sign up</a>
+        </div>
+        <div class="demo-credentials">
+          <p>Demo: admin / admin123</p>
+        </div>
+      </div>
+      <div class="signup-box" id="signupBox" style="display:none;">
+        <div class="logo-large">
+          <i class="fas fa-chart-line"></i>
+          <span>LitNetX</span>
+        </div>
+        <p class="signup-text">Create your account</p>
+        <form id="signupForm">
+          <input id="signupName" type="text" required placeholder="Full Name">
+          <input id="signupEmail" type="email" required placeholder="Email">
+          <input id="signupUser" type="text" required placeholder="Username">
+          <input id="signupPass" type="password" required placeholder="Password">
+          <button type="submit" class="btn-login">Sign Up</button>
+        </form>
+        <div id="signupMsg" class="error-msg"></div>
+        <div class="signup-link">
+          Have an account? <a href="#" onclick="showLogin()">Log in</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="mainApp" style="display:none;">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <i class="fas fa-chart-line"></i>
+          <span>LitNetX</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" onclick="showSection('dashboard'); return false;">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" onclick="showSection('contacts'); return false;">
+          <i class="fas fa-users"></i>
+          <span>Contacts</span>
+        </a>
+        <a href="#" class="nav-item" onclick="showSection('companies'); return false;">
+          <i class="fas fa-building"></i>
+          <span>Companies</span>
+        </a>
+        <a href="#" class="nav-item" onclick="showSection('deals'); return false;">
+          <i class="fas fa-handshake"></i>
+          <span>Deals</span>
+        </a>
+        <a href="#" class="nav-item" onclick="showSection('tasks'); return false;">
+          <i class="fas fa-tasks"></i>
+          <span>Tasks</span>
+        </a>
+        <a href="#" class="nav-item" onclick="showSection('activities'); return false;">
+          <i class="fas fa-history"></i>
+          <span>Activities</span>
+        </a>
+        <a href="#" class="nav-item" onclick="showSection('reports'); return false;">
+          <i class="fas fa-chart-bar"></i>
+          <span>Reports</span>
+        </a>
+        <a href="#" class="nav-item" onclick="showSection('calendar'); return false;">
+          <i class="fas fa-calendar"></i>
+          <span>Calendar</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="user-details">
+            <div class="user-name" id="sidebarUserName">User</div>
+            <div class="user-email" id="sidebarUserEmail">user@crm.com</div>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <!-- DASHBOARD -->
+      <section id="dashboard" class="content-section active">
+        <div class="section-header">
+          <h1>Dashboard</h1>
+          <div class="header-actions">
+            <button class="btn-primary" onclick="refreshDashboard()">
+              <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+          </div>
+        </div>
+        <div class="stats-grid" id="dashboardStats">
+          <!-- Stats will be loaded here -->
+        </div>
+        <div class="dashboard-grid">
+          <div class="dashboard-card">
+            <h3>Recent Activities</h3>
+            <div id="recentActivities" class="activity-list"></div>
+          </div>
+          <div class="dashboard-card">
+            <h3>Upcoming Tasks</h3>
+            <div id="upcomingTasks" class="task-list"></div>
+          </div>
+          <div class="dashboard-card">
+            <h3>Deal Pipeline</h3>
+            <div id="dealPipeline" class="pipeline-chart"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTACTS -->
+      <section id="contacts" class="content-section">
+        <div class="section-header">
+          <h1>Contacts</h1>
+          <div class="header-actions">
+            <input type="text" class="search-input" id="contactSearch" placeholder="Search contacts..." onkeyup="filterContacts()">
+            <button class="btn-primary" onclick="openContactModal()">
+              <i class="fas fa-plus"></i> Add Contact
+            </button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Company</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="contactsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- COMPANIES -->
+      <section id="companies" class="content-section">
+        <div class="section-header">
+          <h1>Companies</h1>
+          <div class="header-actions">
+            <input type="text" class="search-input" id="companySearch" placeholder="Search companies..." onkeyup="filterCompanies()">
+            <button class="btn-primary" onclick="openCompanyModal()">
+              <i class="fas fa-plus"></i> Add Company
+            </button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Industry</th>
+                <th>Website</th>
+                <th>Employees</th>
+                <th>Revenue</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="companiesTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- DEALS -->
+      <section id="deals" class="content-section">
+        <div class="section-header">
+          <h1>Deals</h1>
+          <div class="header-actions">
+            <button class="btn-primary" onclick="openDealModal()">
+              <i class="fas fa-plus"></i> Add Deal
+            </button>
+          </div>
+        </div>
+        <div class="pipeline-view">
+          <div class="pipeline-column" data-stage="Prospecting">
+            <div class="pipeline-header">
+              <h3>Prospecting</h3>
+              <span class="stage-count" id="count-prospecting">0</span>
+            </div>
+            <div class="pipeline-deals" id="deals-prospecting"></div>
+          </div>
+          <div class="pipeline-column" data-stage="Qualification">
+            <div class="pipeline-header">
+              <h3>Qualification</h3>
+              <span class="stage-count" id="count-qualification">0</span>
+            </div>
+            <div class="pipeline-deals" id="deals-qualification"></div>
+          </div>
+          <div class="pipeline-column" data-stage="Proposal">
+            <div class="pipeline-header">
+              <h3>Proposal</h3>
+              <span class="stage-count" id="count-proposal">0</span>
+            </div>
+            <div class="pipeline-deals" id="deals-proposal"></div>
+          </div>
+          <div class="pipeline-column" data-stage="Negotiation">
+            <div class="pipeline-header">
+              <h3>Negotiation</h3>
+              <span class="stage-count" id="count-negotiation">0</span>
+            </div>
+            <div class="pipeline-deals" id="deals-negotiation"></div>
+          </div>
+          <div class="pipeline-column" data-stage="Won">
+            <div class="pipeline-header">
+              <h3>Won</h3>
+              <span class="stage-count" id="count-won">0</span>
+            </div>
+            <div class="pipeline-deals" id="deals-won"></div>
+          </div>
+          <div class="pipeline-column" data-stage="Lost">
+            <div class="pipeline-header">
+              <h3>Lost</h3>
+              <span class="stage-count" id="count-lost">0</span>
+            </div>
+            <div class="pipeline-deals" id="deals-lost"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TASKS -->
+      <section id="tasks" class="content-section">
+        <div class="section-header">
+          <h1>Tasks</h1>
+          <div class="header-actions">
+            <button class="btn-primary" onclick="openTaskModal()">
+              <i class="fas fa-plus"></i> Add Task
+            </button>
+          </div>
+        </div>
+        <div class="tasks-view">
+          <div class="task-filters">
+            <button class="filter-btn active" onclick="filterTasks('all')">All</button>
+            <button class="filter-btn" onclick="filterTasks('pending')">Pending</button>
+            <button class="filter-btn" onclick="filterTasks('in-progress')">In Progress</button>
+            <button class="filter-btn" onclick="filterTasks('completed')">Completed</button>
+          </div>
+          <div id="tasksList" class="tasks-list"></div>
+        </div>
+      </section>
+
+      <!-- ACTIVITIES -->
+      <section id="activities" class="content-section">
+        <div class="section-header">
+          <h1>Activities</h1>
+          <div class="header-actions">
+            <button class="btn-primary" onclick="openActivityModal()">
+              <i class="fas fa-plus"></i> Log Activity
+            </button>
+          </div>
+        </div>
+        <div id="activitiesList" class="activities-list"></div>
+      </section>
+
+      <!-- REPORTS -->
+      <section id="reports" class="content-section">
+        <div class="section-header">
+          <h1>Reports & Analytics</h1>
+        </div>
+        <div class="reports-grid">
+          <div class="report-card">
+            <h3>Revenue by Month</h3>
+            <div id="revenueChart" class="chart-placeholder">Chart will be displayed here</div>
+          </div>
+          <div class="report-card">
+            <h3>Deal Conversion Rate</h3>
+            <div id="conversionChart" class="chart-placeholder">Chart will be displayed here</div>
+          </div>
+          <div class="report-card">
+            <h3>Top Companies</h3>
+            <div id="topCompanies" class="top-list"></div>
+          </div>
+          <div class="report-card">
+            <h3>Activity Summary</h3>
+            <div id="activitySummary" class="summary-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CALENDAR -->
+      <section id="calendar" class="content-section">
+        <div class="section-header">
+          <h1>Calendar</h1>
+          <div class="header-actions">
+            <button class="btn-primary" onclick="openTaskModal()">
+              <i class="fas fa-plus"></i> Add Event
+            </button>
+          </div>
+        </div>
+        <div id="calendarView" class="calendar-view"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODALS -->
+  <!-- Contact Modal -->
+  <div id="contactModal" class="modal-overlay" onclick="closeModal('contactModal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="contactModalTitle">Add Contact</h3>
+        <button class="close-btn" onclick="closeModal('contactModal')"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="contactForm" onsubmit="saveContact(event)">
+        <div class="form-group">
+          <label>First Name *</label>
+          <input type="text" id="contactFirstName" required>
+        </div>
+        <div class="form-group">
+          <label>Last Name *</label>
+          <input type="text" id="contactLastName" required>
+        </div>
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" id="contactEmail" required>
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" id="contactPhone">
+        </div>
+        <div class="form-group">
+          <label>Company</label>
+          <input type="text" id="contactCompany">
+        </div>
+        <div class="form-group">
+          <label>Job Title</label>
+          <input type="text" id="contactJobTitle">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="contactStatus">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Lead">Lead</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('contactModal')">Cancel</button>
+          <button type="submit" class="btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Company Modal -->
+  <div id="companyModal" class="modal-overlay" onclick="closeModal('companyModal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="companyModalTitle">Add Company</h3>
+        <button class="close-btn" onclick="closeModal('companyModal')"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="companyForm" onsubmit="saveCompany(event)">
+        <div class="form-group">
+          <label>Company Name *</label>
+          <input type="text" id="companyName" required>
+        </div>
+        <div class="form-group">
+          <label>Industry</label>
+          <input type="text" id="companyIndustry">
+        </div>
+        <div class="form-group">
+          <label>Website</label>
+          <input type="url" id="companyWebsite">
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" id="companyPhone">
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <textarea id="companyAddress" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Employees</label>
+          <input type="number" id="companyEmployees">
+        </div>
+        <div class="form-group">
+          <label>Annual Revenue</label>
+          <input type="number" id="companyRevenue" step="0.01">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('companyModal')">Cancel</button>
+          <button type="submit" class="btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Deal Modal -->
+  <div id="dealModal" class="modal-overlay" onclick="closeModal('dealModal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="dealModalTitle">Add Deal</h3>
+        <button class="close-btn" onclick="closeModal('dealModal')"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="dealForm" onsubmit="saveDeal(event)">
+        <div class="form-group">
+          <label>Deal Name *</label>
+          <input type="text" id="dealName" required>
+        </div>
+        <div class="form-group">
+          <label>Company</label>
+          <select id="dealCompany">
+            <option value="">Select Company</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Contact</label>
+          <select id="dealContact">
+            <option value="">Select Contact</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Value ($) *</label>
+          <input type="number" id="dealValue" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label>Stage *</label>
+          <select id="dealStage" required>
+            <option value="Prospecting">Prospecting</option>
+            <option value="Qualification">Qualification</option>
+            <option value="Proposal">Proposal</option>
+            <option value="Negotiation">Negotiation</option>
+            <option value="Won">Won</option>
+            <option value="Lost">Lost</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Expected Close Date</label>
+          <input type="date" id="dealCloseDate">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('dealModal')">Cancel</button>
+          <button type="submit" class="btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Task Modal -->
+  <div id="taskModal" class="modal-overlay" onclick="closeModal('taskModal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="taskModalTitle">Add Task</h3>
+        <button class="close-btn" onclick="closeModal('taskModal')"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="taskForm" onsubmit="saveTask(event)">
+        <div class="form-group">
+          <label>Task Title *</label>
+          <input type="text" id="taskTitle" required>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="taskDescription" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="taskPriority">
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="taskStatus">
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Due Date</label>
+          <input type="date" id="taskDueDate">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('taskModal')">Cancel</button>
+          <button type="submit" class="btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Activity Modal -->
+  <div id="activityModal" class="modal-overlay" onclick="closeModal('activityModal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Log Activity</h3>
+        <button class="close-btn" onclick="closeModal('activityModal')"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="activityForm" onsubmit="saveActivity(event)">
+        <div class="form-group">
+          <label>Activity Type *</label>
+          <select id="activityType" required>
+            <option value="Call">Call</option>
+            <option value="Email">Email</option>
+            <option value="Meeting">Meeting</option>
+            <option value="Note">Note</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Subject *</label>
+          <input type="text" id="activitySubject" required>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="activityDescription" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Related To</label>
+          <select id="activityRelated">
+            <option value="">None</option>
+            <option value="contact">Contact</option>
+            <option value="company">Company</option>
+            <option value="deal">Deal</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('activityModal')">Cancel</button>
+          <button type="submit" class="btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Diagnostic: Check if page loads
+    console.log('CRM System: Page loaded');
+    console.log('Login screen element:', document.getElementById('loginScreen'));
+    
+    // Ensure login screen is visible by default
+    window.addEventListener('DOMContentLoaded', function() {
+      const loginScreen = document.getElementById('loginScreen');
+      if (loginScreen) {
+        loginScreen.style.display = 'flex';
+        console.log('Login screen displayed');
+      } else {
+        console.error('Login screen element not found!');
+      }
+    });
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
+
