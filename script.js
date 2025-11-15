@@ -212,19 +212,60 @@ async function apiCall(endpoint, options = {}) {
       return null;
     }
 
-    const data = await response.json();
+    // Check if response is JSON
+    let data;
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}`);
+    }
     
     if (!response.ok) {
-      throw new Error(data.error || 'Request failed');
+      throw new Error(data.error || `Request failed with status ${response.status}`);
     }
 
     return data;
   } catch (error) {
     console.error('API Error:', error);
-    showToast(error.message || 'Network error. Please try again.', 'error', 'Error');
+    
+    // More specific error messages
+    let errorMessage = 'Network error. Please try again.';
+    if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+      errorMessage = `Cannot connect to server at ${API_BASE}. Make sure the server is running.`;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    showToast(errorMessage, 'error', 'Connection Error');
     throw error;
   }
 }
+
+// ========== CONNECTION TEST ==========
+async function testConnection() {
+  try {
+    const response = await fetch(`${API_BASE.replace('/api', '')}/health`);
+    if (response.ok) {
+      const data = await response.json();
+      console.log('✅ Server connection successful:', data);
+      return true;
+    }
+  } catch (error) {
+    console.error('❌ Server connection failed:', error);
+    showToast(`Cannot connect to server. Please check if the server is running at ${API_BASE.replace('/api', '')}`, 'error', 'Connection Error');
+    return false;
+  }
+}
+
+// Test connection on page load
+window.addEventListener('DOMContentLoaded', async () => {
+  // Wait a bit for page to fully load
+  setTimeout(async () => {
+    await testConnection();
+  }, 1000);
+});
 
 // ========== INITIALIZE APP ==========
 function initializeApp() {
