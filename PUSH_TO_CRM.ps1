@@ -5,11 +5,29 @@ param(
     [string]$GitHubUsername = "",
     
     [Parameter(Mandatory=$false)]
-    [string]$GitHubToken = "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",
+    [string]$GitHubToken = "",
     
     [Parameter(Mandatory=$false)]
     [string]$RepoName = "CRM"
 )
+
+# Try to load token from environment variable first, then from .env file, then use default
+if ([string]::IsNullOrWhiteSpace($GitHubToken)) {
+    $GitHubToken = $env:GITHUB_TOKEN
+    if ([string]::IsNullOrWhiteSpace($GitHubToken)) {
+        # Try to read from .env file
+        if (Test-Path .env) {
+            $envContent = Get-Content .env -Raw
+            if ($envContent -match "GITHUB_TOKEN=(.+)") {
+                $GitHubToken = $matches[1].Trim()
+            }
+        }
+        # Fallback to default token if provided
+        if ([string]::IsNullOrWhiteSpace($GitHubToken)) {
+            $GitHubToken = "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"
+        }
+    }
+}
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host " Push litnetX to GitHub Repository: CRM" -ForegroundColor Cyan
