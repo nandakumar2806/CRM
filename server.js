@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 const path = require('path');
 
 const app = express();
@@ -14,7 +15,12 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('public'));
+// Serve static files from `public` if exists; otherwise serve from project root.
+const PUBLIC_DIR = fsSync.existsSync(path.join(__dirname, 'public'))
+  ? path.join(__dirname, 'public')
+  : __dirname;
+
+app.use(express.static(PUBLIC_DIR));
 
 // Data storage files
 const DATA_DIR = path.join(__dirname, 'data');
@@ -478,7 +484,7 @@ app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
 });
 
 // Initialize and start server
