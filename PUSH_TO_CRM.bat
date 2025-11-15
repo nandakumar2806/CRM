@@ -23,8 +23,15 @@ if %ERRORLEVEL% NEQ 0 (
 echo [OK] Git is installed. Proceeding...
 echo.
 
+REM Try to get token from environment variable first
+if "%GITHUB_TOKEN%"=="" (
+    REM Try to read from .env file (basic parsing)
+    for /f "tokens=2 delims==" %%a in ('findstr /C:"GITHUB_TOKEN=" .env 2^>nul') do set GITHUB_TOKEN=%%a
+    REM If still empty, use default
+    if "%GITHUB_TOKEN%"=="" set GITHUB_TOKEN=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
+)
+
 set /p GITHUB_USERNAME="Enter your GitHub username: "
-set GITHUB_TOKEN=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
 set REPO_NAME=CRM
 
 echo.
